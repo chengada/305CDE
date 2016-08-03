@@ -1,0 +1,409 @@
+<html>
+<head>
+<title>Main</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8"/>
+    <!--Include JQuery mobile Style and liabrary -->
+    <link href="css/jquery.mobile-1.4.5.min.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-2.2.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+	<script src="js/common.js"></script>
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div data-role="page" id="drugdetail">
+    <div data-role="header" data-fullscreen="true" >
+        <h1>Drugs Details</h1>
+        <a data-icon="arrow-l" data-iconpos="notext" data-ajax="false" data-rel="back"></a>
+        <a onclick="logout()" href="login.html" data-role="button" data-icon="delete" data-theme="a">Log out</a>
+    </div>
+    <div data-role="content" >
+      <div id="lblloading" style="text-align:center" >
+          Loading <sapn id="ltitle"></sapn>......<br/>
+          <img src="images/LoaderIcon.gif" alt="">
+      </div>
+       <div id="drugInfo" style="display:none">
+            <h1 id="dtitle">Title: </h1>
+            <img id="dimg" src="images/no-image.png" width="50%" alt=""> 
+            <p id="dcategory">Category: drugs category</p>
+            <h1 id="dq1"></h1>
+            <span id="da1"></span>
+        </div>
+    <a id="btnReview" href="#review" data-transition="slide" data-ajax="true" data-role="button" data-icon="info" data-inline="true" data-theme="a">Review</a>
+    </div>
+</div>
+
+<div data-role="page" id="review">
+    <div data-role="" data-position="fixed" data-fullscreen="true" data-tap-toggle="false" role="banner" class="ui-header ui-header-fullscreen ui-bar-inherit ui-header-fixed slidedown">
+        <h1 class="ui-title" role="heading" aria-level="1">Drug Review</h1>
+        <a data-icon="arrow-l" data-iconpos="notext" data-rel="back" data-transition="slide" class="ui-link ui-btn-left ui-btn ui-icon-arrow-l ui-btn-icon-notext ui-shadow ui-corner-all" data-role="button" role="button"></a>
+        <a onclick="logout()" href="login.html" data-role="button" data-icon="delete" data-theme="a" class="ui-link ui-btn-right ui-btn ui-btn-a ui-icon-delete ui-btn-icon-left ui-shadow ui-corner-all" role="button">Log out</a>
+    </div>
+    <div data-role="content" >
+      <div id="delMsg" class="ui-input-text ui-shadow-inset ui-corner-all" style="float: right;position: relative;font-size:6vw;right: 28vw;text-align: left; top: 28vw;border: 2px solid #ea2e35;padding: 5vw;background-color: #ffffff; display:none; position: fixed;">
+      	Deleting.....
+      </div>
+      <br/>
+       <h1 id="drugName" style="text-shadow: 2px 2px #969696"></h1>
+       <textarea type="text" id="txtcomment" placeholder="Write your comment here"></textarea>
+       <a data-role="button" style="display:none"></a>
+<!--       <a onclick="newComment()" data-role="button" data-inline="true" data-icon="action">Write a comment</a>-->
+       <div id="comment">
+       </div>
+    </div>
+
+	<div  data-role="" data-position="fixed" data-tap-toggle="false" data-id="reviewFooter" role="contentinfo" class="ui-footer ui-bar-inherit ui-footer-fixed slideup">
+       	&nbsp;
+        <a data-icon="minus" data-iconpos="notext" onclick="batchDeleteComment(this)" class="ui-link ui-btn ui-icon-minus ui-btn-icon-notext ui-shadow ui-corner-all" data-role="button" role="button"></a>
+        <span style="float:right">&nbsp;&nbsp;</span>
+        <a style="float:right" data-icon="plus" data-iconpos="notext" onclick="newComment(this)" class="ui-link ui-btn ui-icon-plus ui-btn-icon-notext ui-shadow ui-corner-all" data-role="button" role="button"></a>
+        
+    </div>
+<!--
+    <div data-role="footer" data-position="fixed" data-tap-toggle="false" data-id="reviewFooter">
+       	&nbsp;
+        <a data-icon="minus" data-iconpos="notext" onclick="batchDeleteComment()" ></a>
+        <span style="float:right">&nbsp;&nbsp;</span>
+        <a style="float:right" data-icon="plus" data-iconpos="notext" onclick="newComment()"></a>
+        
+    </div>
+-->
+
+</div>
+
+<div data-role="page" id="reviewUpdate">
+	<div data-role="header" data-fullscreen="true">
+        <h1 >Review Update</h1>
+        <a data-icon="arrow-l" data-iconpos="notext" data-rel="back" data-ajax="true"></a>
+    </div>
+    <div data-role="content" >
+    	<textarea type="text" id="txtUpdateComment" placeholder="Re Write your comment here"></textarea>
+       	<a data-role="button" style="display:none"></a>
+       	<a onclick="UpdateComment()" data-role="button" data-inline="true" data-icon="action">Update comment</a>
+	</div>
+</div>
+
+<script>
+    var QueryString;
+
+    $(document).on('pagebeforeshow',function(){
+        //checkUser();
+		
+		if($.mobile.activePage.attr('id') == "drugdetail") {
+			QueryString = function () {
+			  // This function is anonymous, is executed immediately and 
+			  // the return value is assigned to QueryString!
+			  var query_string = {};
+			  var query = window.location.search.substring(1);
+			  var vars = query.split("&");
+			  for (var i=0;i<vars.length;i++) {
+				var pair = vars[i].split("=");
+					// If first entry with this name
+				if (typeof query_string[pair[0]] === "undefined") {
+				  query_string[pair[0]] = decodeURIComponent(pair[1]);
+					// If second entry with this name
+				} else if (typeof query_string[pair[0]] === "string") {
+				  var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+				  query_string[pair[0]] = arr;
+					// If third or later entry with this name
+				} else {
+				  query_string[pair[0]].push(decodeURIComponent(pair[1]));
+				}
+			  } 
+			  return query_string;
+			}();     
+
+			if (QueryString.drug_id != undefined)
+			{
+				localStorage.drug_id =  QueryString.drug_id;
+				localStorage.drug_name =  QueryString.drug_name;
+				$('#ltitle').html(localStorage.drug_name);
+				getdrug();
+			}
+		}
+		
+		if($.mobile.activePage.attr('id') == "review") {
+			$('#drugName').html(localStorage.drug_name);
+			loadComment();
+		}
+		
+		
+		// swipe control of page
+		$(document).on("swipeleft", function(event) {
+			if(event.handled !== true){
+			switch($.mobile.activePage.attr('id')){
+				case 'drugdetail':
+						$.mobile.changePage("#review", { transition: "slide" });
+					break;
+				case 'review':
+					
+					break;
+				case 'reviewUpdate':
+					
+					break;
+			}
+			event.handled = true;
+			}
+			return false;
+		});
+		
+		$(document).on("swiperight", function(event) {
+			if(event.handled !== true){  
+			switch($.mobile.activePage.attr('id')){
+				case 'drugdetail':
+					$.mobile.back({ transition: "slide" });
+					break;
+				case 'review':
+					$.mobile.back({ transition: "slide" });
+					break;
+				case 'reviewUpdate':
+					$.mobile.back({ transition: "slide" });
+					break;
+			}
+			event.handled = true;
+			}
+			return false;
+		});
+    });
+	// swipe control of page    
+    function getdrug() {
+        var url = "http://aidsinfo.nih.gov/api/drugs/" + QueryString.drug_id;
+        $.ajax({
+        type: "GET",
+        url:url,
+        dataType: "json",
+        withCredentials: "true",
+        success:function(data){
+            $("#lblloading").hide();
+            $("#drugInfo").show();
+            $("#dtitle").html('Title: ' + data[0].Names[1].Title);
+            if(data[0].Images.length != 0)
+            {
+                $("#dimg").attr("src",data[0].Images[0].URL);
+            }
+            else {
+            }
+            $("#dcategory").html('Category: ' + data[0].Class.English);
+            $("#dq1").html(data[0].PatientVersions[0].Template[1].Question);
+            $("#da1").html(data[0].PatientVersions[0].Template[1].Answer);
+        },
+        error:function(){
+            console.log("drugdetail Error");
+        }      
+        });
+    }
+	
+	function selected(element){
+		if($(element).attr('editable') != undefined){
+			if($(element).attr('editable') == 'selected'){
+				$(element).css('background', '#3b3b3b');
+				$(element).attr('editable','true');
+			}
+			else {
+				$(element).css('background', '#ed1c24');	
+				$(element).attr('editable','selected');
+			}
+		}
+	} 
+
+	
+	function loadComment() {
+		$.getJSON(hosturl + 'review.api.php?drug_id=' + localStorage.drug_id)
+            .done(function (data) {
+			$('#comment').empty();
+			if (data.length == 0)
+				$('#comment').append("NO Comment Found!");
+			else
+            $.each(data,function(i, row){
+			var htmstr = '<div reviewid='+ row.review_id +' ';
+			if(row.usname == localStorage.username || localStorage.username == 'admin'){
+				htmstr += 'editable="true"';
+			}
+			htmstr += 'class="ui-body-inherit ui-shadow ui-corner-all" style="padding:2vw;" onclick="selected(this);">' +
+                '<p>By : ' + row.usname + '</p>' +
+                '<p id=c_' + row.review_id + '>'+ row.comment + '</p>' +
+				'<p>'+ row.date + '</p>';
+			if(row.usname == localStorage.username || localStorage.username == 'admin'){
+//				'<a class="ui-link ui-btn ui-icon-minus ui-btn-icon-left ui-btn-inline ui-shadow ui-corner-all" data-role="button" data-inline="true" data-icon="minus" onclick="deleteComment(' + row.review_id + ');">delete</a> ' +
+				htmstr += '<a href="#reviewUpdate" class="ui-link ui-btn ui-icon-edit ui-btn-icon-left ui-btn-inline ui-shadow ui-corner-all"  data-role="button" data-inline="true" data-transition="slide" data-icon="edit" onclick="editComment(' + row.review_id + ')");">edit</a>'
+			};
+			htmstr += '</div><br/>';
+            $('#comment').append(htmstr);
+            })
+        }).fail(function(err) {
+            console.log(err);
+        })
+	}
+	
+    function newComment(element) {
+		if ($('#txtcomment').val().length < 1) {
+			// ui effect without text input
+		}
+		else
+		{
+			$(element).hide();
+			var myData = {
+				'comment': $('#txtcomment').val(),
+				'username': localStorage.username,
+				'drug_name': localStorage.drug_name,
+				'drug_id': localStorage.drug_id
+			}
+			$('#txtcomment').val('');
+			$.ajax({
+					url:hosturl + 'review.api.php',
+					type: "POST",
+					data:  JSON.stringify(myData),
+					success: function(msg){
+						if (msg == 'inserted')
+						{
+							loadComment();
+							// ui effect for inserted review
+						}
+						else
+						{
+							alert(msg);
+						}
+						$(element).show();
+					},
+					error: function(xhr, ajaxOptions, thrownError){
+						alert("Not allow post method");
+						console.log("Not allow post status:" + xhr.status)
+						console.log("Not allow post error message:" + thrownError);
+					}
+			});
+		}
+		return false;
+	}
+	
+	function batchDeleteComment(element){
+		var commentDivArray = $('#comment')[0].getElementsByTagName("div");
+		if (commentDivArray != undefined){
+			$(element).hide();
+			var commentDelArray = [];
+			// finding which selected
+			$.each(commentDivArray,function(i, row){
+				if($(row).attr('editable') != undefined){
+					if($(row).attr('editable') == 'selected'){
+						commentDelArray.push(row);
+					}
+				}
+			});
+
+			// start deletion when found above
+			var deleteCount = commentDelArray.length;
+			var processCount = 1;
+			if (deleteCount != 0)
+			{
+				$('#delMsg').show();
+				$.each(commentDelArray,function(i, row){
+					$.ajax({
+							url:hosturl + 'review.api.php',
+							type:"DELETE",
+							dataType : 'text',
+							data: 'review_id=' + $(row).attr('reviewid'),
+							success: function(msg){
+								if (msg == 'deleted')
+								{
+									console.log("delete comment id=" + $(row).attr('reviewid'));
+									// if delete at the last comment
+									if (processCount == deleteCount){
+										loadComment();
+										$('#delMsg').hide();
+										$(element).show();
+									}
+									processCount ++;
+								}
+								else
+								{
+									alert("Not allow delete method");
+								}
+							},
+							error: function(xhr, ajaxOptions, thrownError){
+									alert("Not allow delete method");
+									console.log("Not allow delete status:" + xhr.status)
+									console.log("Not allow delete error message:" + thrownError);
+							}
+						});
+				});
+			}
+			else {
+				$(element).show();
+			}
+		}
+		return false;
+	}
+	
+	function deleteComment(reviewId) {
+		$.ajax({
+		url:hosturl + 'review.api.php',
+		type:"DELETE",
+		dataType : 'text',
+		data: 'review_id=' + reviewId,
+		success: function(msg){
+			if (msg == 'deleted')
+			{
+				loadComment();
+				// ui effect for new deleted a comment
+			}
+			else
+			{
+				alert("Not allow delete method");
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError){
+				alert("Not allow delete method");
+				console.log("Not allow delete status:" + xhr.status)
+				console.log("Not allow delete error message:" + thrownError);
+		}
+		});
+
+	}
+	
+	function editComment (reviewId) {
+		localStorage.review_id = reviewId;
+		$('#txtUpdateComment').val($('#c_' + reviewId).html());
+	}
+	
+	function UpdateComment () {
+		if ($('#txtUpdateComment').val().length < 1) {
+			// ui effect without text input
+		}
+		else {
+		$.ajax({
+		url:hosturl + 'review.api.php',
+		type:"PUT",
+		data: 'review_id=' + localStorage.review_id + '&comment=' + $('#txtUpdateComment').val(),
+		success: function(msg){
+			if (msg == 'updated')
+			{
+				loadComment();
+				
+				$('#txtUpdateComment').val('');
+				$.mobile.back();
+				// ui effect for new updated a comment
+				$.mobile.silentScroll($('#c_' + localStorage.review_id).offset().top);
+				localStorage.removeItem('review_id');
+				
+			}
+			else
+			{
+				alert(msg);
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError){
+				alert("Not allow put method");
+				console.log("Not allow put status:" + xhr.status)
+				console.log("Not allow put error message:" + thrownError);
+		}
+		});
+		}
+	}
+	
+	
+    </script>
+
+</body>
+
+<html>

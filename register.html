@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8"/>
+    <!--Include JQuery mobile Style and liabrary -->
+    <link href="css/jquery.mobile-1.4.5.min.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-2.2.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/common.js"></script>
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
+</head>
+    <body>
+        <div data-role="page" id="register">
+            <div data-role="header" data-fullscreen="true" data-theme="a">
+                <h1>Create an Account</h1>
+               <a href="login.html" data-rel="back" data-icon="arrow-l" data-iconpos="notext"></a>
+            </div>
+            <div data-role="content">
+                <form class="registerform" id="registerform">
+
+                    <div  data-role="fieldcontain">
+                        <!---<label for="username">Username *: </label>--->
+                        <input type="text" name="username" id="username" value="" date-mini="true" data-clear-btn="true" placeholder="Username *"/>
+                    </div>
+                
+                    <div data-role="fieldcontain">
+                        <!---<label for="fname">First Name : </label>--->
+                        <input type="text" name="fname" id="fname" date-mini="true" data-clear-btn="true" placeholder="First Name"/>
+                    </div>
+                
+                    <div data-role="fieldcontain">
+                        <!---<label for="lname">Last Name :</label>---->
+                        <input type="text" name="lname" id="lname" date-mini="true" data-clear-btn="true" placeholder="Last Name"/>
+                    </div>
+                    
+                    <div data-role="fieldcontain">
+                        <!---<label for="email">Email *:</label>--->
+                      <input type="email" name="email" id="email"  date-mini="true" data-clear-btn="true" placeholder="Email *"/>
+                    </div>
+                            
+                    <div data-role="fieldcontain">
+                        <!---<label for="psword">Password *:</label>--->
+                        <input type="password" name="password" id="password"  date-mini="true" data-clear-btn="true" placeholder="Password *"/>
+                    </div>
+                    
+                    <div data-role="fieldcontain">
+                        <!---<label for="psword">Repeat password :</label>--->
+                        <input type="password" name="confirmpassword" id="confirmpassword" date-mini="true" data-clear-btn="true" 
+                        placeholder="Confirm password *"/>
+                    </div>
+                    
+                    <div data-role="controlgroup" data-type="horizontal" style="text-align:center;">
+                        <button type="submit" class="ui-btn" data-inline="true">Register</button>
+                    </div>
+                    <label id="lblMessage" style="color:red"></label>      
+            </form>
+            <script>
+    $(document).on('pageinit',function() {
+		$("#registerform").validate({
+			rules: {
+				username: {
+					required : true,
+					minlength : 5
+				},
+                fname: "required",
+				lname : "required",
+                email: {
+					required: true,
+					email: true
+				},
+				password : {
+					required : true,
+					minlength : 5
+				},
+				confirmpassword : {
+					required : true,
+					minlength : 5,
+					equalTo : "#password"
+				}
+			},
+			messages: {
+                username : {
+					required : "Please enter a Username",
+					minlength : "Your user name must consist of at least 5 characters",
+				},
+				fname: "Please enter your First Name",
+				lname : "Please enter your Last Name",
+				email: "Please enter valid email @",
+				password : {
+					required : "Please provide a password",
+					minlength : "Your password must be at least 5 characters long"
+				},
+				confirmpassword : {
+					required : "Please provide a password",
+					equalTo : "Please enter the same password as above"
+				}
+			},
+            submitHandler: function(frm) {
+                checkRegister();
+                return false;
+            }
+		});
+    });
+                
+    function checkRegister() {
+        document.getElementById('lblMessage').innertHTML = "";
+        var _username= $("#username").val();
+        var _fname= $('#fname').val();
+        var _lname= $('#lname').val();
+        var _email= $('#email').val();
+        var _password= $("#password").val();
+       
+        var myData = {
+            'username': _username,
+            'fname': _fname,
+            'lname': _lname,
+            'email': _email,
+            'password': _password
+        }
+            $.ajax({
+                url: hosturl +'user.api.php',
+                type: "POST",
+                data:  $('#registerform').serialize(),// data:  myData,
+                success: function(msg){
+                    if ($.isNumeric(msg))
+                    {
+                        localStorage.username=_username;
+                        localStorage.userid=msg;  
+                        document.getElementById('lblMessage').innerHTML = "";
+						$('#registerform').hide();
+						tempAlert('Account:<br/> ' + _username + ' Created!,<br/> Forwarding to the main page!',2000);
+						setTimeout(function () {window.location.href = "main.html"},3000);
+                        //$('input').each(function(){this.value = ""});
+                    }
+                    else if(msg == "Duplicate")
+                    {
+                         
+                        document.getElementById('lblMessage').innerHTML = _username + " existed, please change other name.";
+                        document.getElementById('username').focus();
+                    }
+                    
+                },
+                error:function(xhr, ajaxOptions, thrownError){
+                    alert(xhr.status);
+                    alert(thrownError);
+                    }
+            });
+    };
+</script>
+            </div>
+            <div data-role="footer" data-position="fixed" data-fullscreen="true" data-theme="b">
+                <h1>Copyright &copy Ada S C Cheng</h1>
+            </div>
+        </div>
+    </body>
+</html>
+

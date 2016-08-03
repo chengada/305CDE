@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+    <head>
+    <title>Main</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8"/>
+		<link href="css/jquery.mobile-1.4.5.min.css" rel="stylesheet" type="text/css">
+		<script src="js/jquery-2.2.3.min.js"></script>
+		<script src="js/jquery.mobile-1.4.5.min.js"></script>
+		<script src="js/jquery.validate.min.js"></script>
+		<script src="js/common.js"></script>
+		<link href="css/custom.css" rel="stylesheet" type="text/css">
+    </head>
+
+    <body>
+        <div data-role="page" class="main-page" id="main" data-title="main">
+            <div data-role="header">
+                <h1 style="color:white; font-family:Arial Black, san-serif;">AIDS/HIV</h1>
+                <a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
+                <a href="login.html" data-icon="user" class="sb small Grid ui-link " data-transition="flip"  data-iconpos="notext"></a>
+            </div>
+                <div role="main" class="ui-content jqm-content jqm-fullwidth">
+                        <div style="text-align:center;">
+                            <img src="./images/Homepage.jpg">
+                        </div>
+                    <div class="ui-body ui-body-a ui-corner-all">
+                        <p><center>AIDS stands for “Acquired Immune Deficiency Syndrome”. It is caused by a virus called “Human Immunodeficiency Virus”, or HIV.</center></p>
+                    </div>      
+                </div>
+            <div data-role="panel" data-display="overlay" id="nav-panel">
+                <ul data-role="listview">
+                    <li data-icon="delete"><a href="#" data-rel="close">CLOSE MENU</a></li>
+                         <li><a data-ajax="true" href="./services/symptom.html">Symptoms</a></li>
+                        <li><a data-ajax="true" href="./services/prevention.html">Prevention</a></li>
+                        <li><a data-ajax="true" href="./services/testing.html">Testing</a></li>
+                        <li><a data-ajax="true" href="./services/treatment.html">Treatment</a></li>
+                </ul>
+           </div>
+         </div>
+    </body>
+</html>

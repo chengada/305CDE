@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+<title>Main</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8"/>
+    <!--Include JQuery mobile Style and liabrary -->
+    <link href="css/jquery.mobile-1.4.5.min.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-2.2.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/common.js"></script>
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div data-role="page" id="forget">
+	<div data-role="header">
+		<a href="login.html" data-icon="arrow-l" data-iconpos="notext"></a>
+	</div>
+	<div data-role="content">
+		<form id="forgetForm">
+			<h2 style="color:red">Forget Password</h2>
+			<label for="username">Username:</label>
+			<input type="text" name="username" id="username" value="" data-clear-btn="true" data-mini="true" />
+			<label for="email">Email:</label>
+			<input type="text" name="email" id="email" value="" data-clear-btn="true" autocomplete="off" data-mini="true" />
+			<label id="lblMessage" style="color:red"></label>
+			<div class="ui-grid-a">
+				<input type="submit" id="btnSubmit" data-rel="close" class="ui-btn ui-shadow" value="Confirm" />
+			</div>
+<script>
+    $(document).on('pagebeforeshow',"#forget",function() {
+		localStorage.clear();
+        $("#forgetForm").validate({
+            rules: {
+                username: {
+                        required : true,
+                        minlength : 5
+                    },
+               	email: 	{
+						required: true,
+						email: true
+					}
+            },
+            submitHandler: function (form) {
+                checklogin();
+            }
+        });
+        
+        
+    });
+    
+    function checklogin() {
+        document.getElementById('lblMessage').innertHTML = "";
+        var _username=$("#username").val();
+        var _email=$("#email").val();
+        var myData = {
+            username: _username,
+            email: _email
+        }
+            $.ajax({
+                url: hosturl + 'forget.api.php',
+                type: "GET",
+                data:  myData,
+                success: function(msg){
+                    if (msg != "0")
+                    {
+                        localStorage.username=_username;
+                        localStorage.forgetid=msg;
+                        $.mobile.changePage("#newpassword", { transition: "slide" });
+                    }
+                    else
+                    {
+                        localStorage.clear();
+                        document.getElementById('lblMessage').innerHTML = "Username or Email not correct!";
+                        document.getElementById('username').focus();
+                    } 
+                },
+                error:function(xhr, ajaxOptions, thrownError){
+					alert("Not allow get method !")
+                    console.log("Not allow get method status:" + xhr.status);
+                    console.log("Not allow get method error:" + thrownError);
+                    }
+            });
+    };
+</script>
+        </form>
+       </div>
+</div>    
+
+    
+<div data-role="page" id="newpassword">
+	<div data-role="header">
+<!--		<a href="login.html" data-icon="arrow-l" data-iconpos="notext"></a>-->
+	</div>
+	<div data-role="content">
+		<form id="npform">
+			<h2 style="color:red">Reset Password</h2>
+			<label for="password1">New Password:</label>
+			<input type="password" name="password1" id="password1" value="" data-clear-btn="true" data-mini="true" />
+			<label for="password2">Confirm Password:</label>
+			<input type="password" name="password2" id="password2" value="" data-clear-btn="true" autocomplete="off" data-mini="true" />
+			<label id="lblMessage" style="color:red"></label>
+			<div class="ui-grid-a">
+				<input type="submit" id="btnSubmit" data-rel="close" class="ui-btn ui-shadow" value="Reset" />
+			</div>
+<script>
+    $(document).on('pagebeforeshow','#newpassword',function() {
+        $("#npform").validate({
+            rules: {
+                password1 : {
+					required : true,
+					minlength : 5
+				},
+				password2 : {
+					required : true,
+					minlength : 5,
+					equalTo : "#password1"
+				}
+            },
+            submitHandler: function (form) {
+                updatePassword();
+            }
+        });
+        
+        
+    });
+    
+    function updatePassword() {
+            $.ajax({
+                url: hosturl + 'forget.api.php',
+                type: "PUT",
+                data:  'user_id=' + localStorage.forgetid + '&password=' + $('#password1').val(),
+                success: function(msg){
+                    if (msg == "updated")
+                    {
+                        localStorage.userid = localStorage.forgetid;
+						localStorage.removeItem("forgetid");
+						window.location.href = "login.html";
+                    }
+                    else
+                    {
+                        alert("Not allow put method" + msg);
+                    } 
+                },
+                error:function(xhr, ajaxOptions, thrownError){
+					alert("Not allow put method !")
+                    console.log("Not allow get method status:" + xhr.status);
+                    console.log("Not allow get method error:" + thrownError);
+                    }
+            });
+    };
+</script>
+        </form>
+       </div>
+</div> 
+</body>
+</html>
